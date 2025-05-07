@@ -1,0 +1,103 @@
+/**
+ * School Sports API Admin Styles
+ *
+ * @since      1.0.0
+ * @package    School_Sports_API
+ */
+
+/* Admin Settings Page */
+.school-sports-api-admin-header {
+    background-color: #F32735;
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.school-sports-api-admin-header h2 {
+    color: white;
+    margin-top: 0;
+}
+
+.school-sports-api-admin-main {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.school-sports-api-admin-sidebar {
+    margin-top: 20px;
+}
+
+.school-sports-api-admin-box {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.school-sports-api-admin-box h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.school-sports-api-admin-box table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.school-sports-api-admin-box table th {
+    text-align: left;
+    padding: 8px;
+    background-color: #f8f8f8;
+}
+
+.school-sports-api-admin-box table td {
+    padding: 8px;
+    border-top: 1px solid #eee;
+}
+
+.school-sports-api-admin-footer {
+    margin-top: 20px;
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Shortcode Generator */
+.school-sports-api-shortcode-generator {
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    padding: 15px;
+    border-radius: 3px;
+    margin-top: 15px;
+}
+
+.school-sports-api-shortcode-field {
+    margin-bottom: 15px;
+}
+
+.school-sports-api-shortcode-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.school-sports-api-shortcode-field select,
+.school-sports-api-shortcode-field input,
+.school-sports-api-shortcode-preview input {
+    width: 100%;
+}
+
+.school-sports-api-shortcode-preview {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.school-sports-api-shortcode-actions {
+    text-align: right;
+}

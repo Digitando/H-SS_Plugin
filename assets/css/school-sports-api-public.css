@@ -1,0 +1,434 @@
+/**
+ * School Sports API Public Styles
+ *
+ * @since      1.0.0
+ * @package    School_Sports_API
+ */
+
+/* Container Styles */
+.school-sports-api-container {
+    width: 100%;
+    padding: 10px;
+    background-color: #F32735;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Header Styles */
+.school-sports-api-container h2,
+.school-sports-api-container h3 {
+    background-color: white;
+    color: #231F20;
+    padding: 15px 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 20px;
+}
+
+/* Filter Styles */
+.school-sports-api-filter {
+    display: block !important;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: white;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.school-sports-api-filter select {
+    display: block !important;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: white;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Tabs */
+.school-sports-api-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    gap: 5px;
+}
+
+.school-sports-api-tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+    flex-grow: 1;
+    border: 2px solid transparent;
+}
+
+.school-sports-api-tab.active {
+    border-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Group Container Styles */
+.school-sports-api-group {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Heading Styles */
+.school-sports-api-group h4 {
+    color: #231F20;
+    font-size: 18px;
+    padding: 10px;
+    margin: 0 0 15px 0;
+    background-color: white;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.school-sports-api-group h5 {
+    color: #231F20;
+    font-size: 16px;
+    padding: 10px;
+    margin: 15px 0 10px 0;
+    background-color: white;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Table Styles */
+.school-sports-api-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    font-size: 14px;
+    min-width: max-content; /* Ensures table doesn't shrink below content width */
+}
+
+.school-sports-api-table th,
+.school-sports-api-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    min-width: 60px; /* Minimum width for cells */
+    max-width: 300px; /* Maximum width for cells */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.school-sports-api-table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Add zebra striping for better readability */
+.school-sports-api-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Bold rows styling */
+.school-sports-api-table tr[style*="font-weight: bold"] {
+    background-color: #f8f8f8;
+}
+
+/* Live Results */
+.school-sports-api-live {
+    position: relative;
+}
+
+.school-sports-api-live-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0000;
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 1.5s infinite;
+}
+
+.school-sports-api-live-match {
+    background-color: rgba(255, 0, 0, 0.05) !important;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.school-sports-api-live-timestamp {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+    text-align: right;
+    background-color: white;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* Loading */
+.school-sports-api-loading {
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ddd;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.school-sports-api-loading:after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #F32735;
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error message */
+.school-sports-api-error {
+    background-color: white;
+    color: #F32735;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* No results message */
+.school-sports-api-no-results {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Table scroll handling */
+.school-sports-api-group::-webkit-scrollbar {
+    height: 8px;
+}
+
+.school-sports-api-group::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.school-sports-api-group::-webkit-scrollbar-thumb {
+    background: #F32735;
+    border-radius: 4px;
+}
+
+.school-sports-api-group::-webkit-scrollbar-thumb:hover {
+    background: #d91f2d;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .school-sports-api-container {
+        padding: 5px;
+    }
+
+    .school-sports-api-container h2,
+    .school-sports-api-container h3 {
+        font-size: 16px;
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+
+    .school-sports-api-group {
+        padding: 5px;
+        margin-bottom: 8px;
+    }
+
+    .school-sports-api-group h4 {
+        font-size: 14px;
+        padding: 6px;
+        margin-bottom: 8px;
+    }
+
+    .school-sports-api-group h5 {
+        font-size: 13px;
+        padding: 6px;
+        margin: 8px 0 6px 0;
+    }
+
+    .school-sports-api-table {
+        font-size: 11px;
+    }
+
+    .school-sports-api-table th,
+    .school-sports-api-table td {
+        padding: 3px;
+    }
+    
+    .school-sports-api-tab {
+        padding: 8px;
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .school-sports-api-container h2,
+    .school-sports-api-container h3 {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    .school-sports-api-group h4 {
+        font-size: 12px;
+        padding: 4px;
+    }
+
+    .school-sports-api-group h5 {
+        font-size: 11px;
+        padding: 4px;
+    }
+
+    .school-sports-api-table {
+        font-size: 9px;
+    }
+
+    .school-sports-api-table th,
+    .school-sports-api-table td {
+        padding: 2px;
+        min-width: 40px;
+        max-width: 200px;
+    }
+
+    /* Reduce white space between sections */
+    .school-sports-api-group {
+        margin-bottom: 5px;
+    }
+    
+    .school-sports-api-tab {
+        padding: 6px;
+        font-size: 12px;
+    }
+    
+    /* Improved mobile table styles */
+    .school-sports-api-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Make sure horizontal scrolling is smooth */
+    .school-sports-api-group {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    /* Ensure table headers are visible when scrolling */
+    .school-sports-api-table th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f8f8;
+        z-index: 2;
+    }
+    
+    /* Optimize cell sizes for mobile */
+    .school-sports-api-table th,
+    .school-sports-api-table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 40px;
+        max-width: 120px;
+    }
+    
+    /* Make certain columns more compact */
+    .school-sports-api-table th:first-child,
+    .school-sports-api-table td:first-child {
+        min-width: 30px;
+        max-width: 40px;
+    }
+    
+    /* Ensure the result column is visible */
+    .school-sports-api-table th:last-child,
+    .school-sports-api-table td:last-child {
+        min-width: 60px;
+        font-weight: bold;
+    }
+}
+
+/* Extra small devices */
+@media screen and (max-width: 360px) {
+    .school-sports-api-container {
+        padding: 3px;
+    }
+    
+    .school-sports-api-table {
+        font-size: 8px;
+    }
+    
+    .school-sports-api-table th,
+    .school-sports-api-table td {
+        padding: 1px;
+        min-width: 30px;
+    }
+    
+    /* Further optimize for very small screens */
+    .school-sports-api-filter select {
+        font-size: 12px;
+        padding: 6px;
+    }
+    
+    .school-sports-api-tab {
+        padding: 4px;
+        font-size: 10px;
+    }
+    
+    /* Ensure tables are usable on very small screens */
+    .school-sports-api-table th,
+    .school-sports-api-table td {
+        min-width: 25px;
+        max-width: 80px;
+    }
+}
