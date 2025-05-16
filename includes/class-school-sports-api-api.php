@@ -206,7 +206,19 @@ class School_Sports_API_API {
         // For other contexts (e.g., initial page load), the standard cache logic applies.
         $effective_use_cache = $use_cache;
         if (wp_doing_ajax() && isset($_POST['action']) && $_POST['action'] === 'fetch_sports_results') {
-            $effective_use_cache = false;
+            // The main AJAX handler 'fetch_sports_results' in School_Sports_API_Public already performs nonce verification.
+            // This check is an additional safeguard specifically for the cache-bypassing logic if this method were ever called
+            // directly in an AJAX context without the primary handler's nonce check.
+            if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'school-sports-api-nonce')) {
+                $effective_use_cache = false;
+            } else {
+                // If nonce is missing or invalid in this specific AJAX context,
+                // do not bypass cache as a precaution, though the main handler should prevent this.
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('School Sports API: Nonce check failed within get_sports_data for fetch_sports_results AJAX context. Cache will not be bypassed.');
+                }
+            }
         }
 
         // Set up parameters

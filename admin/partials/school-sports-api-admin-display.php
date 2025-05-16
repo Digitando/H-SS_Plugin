@@ -356,7 +356,10 @@ if (!defined('WPINC')) {
 
         <div class="school-sports-api-admin-box">
             <h3><?php esc_html_e('Trebate Pomoć?', 'school-sports-api'); ?></h3>
-            <p><?php printf(wp_kses(__('Za podršku ili zahtjeve za nove funkcionalnosti, molimo kontaktirajte autora dodatka na <a href="mailto:%s">%s</a>.', 'school-sports-api'), array('a' => array('href' => array()))), 'info@digitando.net', 'info@digitando.net'); ?></p>
+            <p><?php
+                /* translators: 1: Email address (mailto link), 2: Email address (visible text) */
+                printf(wp_kses(__('Za podršku ili zahtjeve za nove funkcionalnosti, molimo kontaktirajte autora dodatka na <a href="mailto:%1$s">%2$s</a>.', 'school-sports-api'), array('a' => array('href' => array()))), 'info@digitando.net', 'info@digitando.net');
+            ?></p>
         </div>
     </div>
 
