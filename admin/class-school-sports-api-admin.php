@@ -62,12 +62,15 @@ class School_Sports_API_Admin {
      * @since    1.0.0
      */
     public function add_options_page() {
-        add_options_page(
-            __('HŠSS Rezultati', 'school-sports-api'),
-            __('HŠSS Rezultati', 'school-sports-api'),
-            'manage_options',
-            $this->plugin_name,
-            array($this, 'display_options_page')
+        // Change to add_menu_page for a top-level menu
+        add_menu_page(
+            __('HŠSS Rezultati Postavke', 'school-sports-api'), // Page title
+            __('HŠSS Rezultati', 'school-sports-api'),          // Menu title
+            'manage_options',                                 // Capability
+            $this->plugin_name,                               // Menu slug
+            array($this, 'display_options_page'),             // Function to display page
+            'dashicons-awards',                               // Icon URL (using a Dashicon)
+            26 // Position (optional, can be adjusted)
         );
     }
 
