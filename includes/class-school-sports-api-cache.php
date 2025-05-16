@@ -120,4 +120,41 @@ class School_Sports_API_Cache {
         
         // @codingStandardsIgnoreEnd
     }
+
+    /**
+     * Clear all transients associated with this plugin.
+     *
+     * @since 1.0.0
+     */
+    public function clear_all_plugin_transients() {
+        global $wpdb;
+        $plugin_prefix = $this->plugin_name . '_';
+
+        // Transients have two parts: the data and the timeout. Both need to be deleted.
+        // Pattern for the data part
+        $transient_pattern = '_transient_' . $plugin_prefix . '%';
+        // Pattern for the timeout part
+        $timeout_pattern = '_transient_timeout_' . $plugin_prefix . '%';
+
+        // @codingStandardsIgnoreStart
+        // Delete data transients
+        $sql_data = $wpdb->prepare(
+            "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+            $transient_pattern
+        );
+        $wpdb->query($sql_data);
+
+        // Delete timeout transients
+        $sql_timeout = $wpdb->prepare(
+            "DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+            $timeout_pattern
+        );
+        $wpdb->query($sql_timeout);
+        // @codingStandardsIgnoreEnd
+
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log('School Sports API: All plugin transients cleared.');
+        }
+    }
 }

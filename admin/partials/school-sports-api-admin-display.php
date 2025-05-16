@@ -19,7 +19,7 @@ if (!defined('WPINC')) {
     
     <div class="school-sports-api-admin-header">
         <div class="school-sports-api-admin-about">
-            <h2><?php esc_html_e('O School Sports API', 'school-sports-api'); ?></h2>
+            <h2><?php esc_html_e('O HŠSS Rezultati', 'school-sports-api'); ?></h2>
             <p><?php esc_html_e('Ovaj dodatak integrira se sa School Sports API-jem za prikaz sportskih podataka, rezultata i rasporeda na vašoj WordPress stranici.', 'school-sports-api'); ?></p>
             <p><?php esc_html_e('Koristite postavke u nastavku za konfiguriranje API veze i opcija predmemorije.', 'school-sports-api'); ?></p>
         </div>
@@ -30,7 +30,15 @@ if (!defined('WPINC')) {
             <?php
             settings_fields('school_sports_api_options');
             do_settings_sections($this->plugin_name);
-            submit_button();
+            // submit_button(); // Standard submit button is still here for saving settings
+            ?>
+            
+            <div id="school-sports-api-cache-reset-message" class="notice" style="display:none; margin-top: 10px; margin-bottom: 10px;"></div>
+
+            <?php
+            // We will add the reset button via a settings field for better layout within the section
+            // Or, if preferred, it can be placed directly here. For now, let's assume it's part of the cache section.
+            submit_button(); // This is the main "Save Changes" button
             ?>
         </form>
     </div>
@@ -348,7 +356,7 @@ if (!defined('WPINC')) {
 
         <div class="school-sports-api-admin-box">
             <h3><?php esc_html_e('Trebate Pomoć?', 'school-sports-api'); ?></h3>
-            <p><?php esc_html_e('Za podršku ili zahtjeve za nove funkcionalnosti, molimo kontaktirajte autora dodatka.', 'school-sports-api'); ?></p>
+            <p><?php printf(wp_kses(__('Za podršku ili zahtjeve za nove funkcionalnosti, molimo kontaktirajte autora dodatka na <a href="mailto:%s">%s</a>.', 'school-sports-api'), array('a' => array('href' => array()))), 'info@digitando.net', 'info@digitando.net'); ?></p>
         </div>
     </div>
 

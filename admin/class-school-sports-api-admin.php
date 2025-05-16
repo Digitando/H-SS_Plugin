@@ -54,6 +54,14 @@ class School_Sports_API_Admin {
      */
     public function enqueue_scripts() {
         wp_enqueue_script($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-admin.js', array('jquery'), $this->version, false);
+        // Localize script for AJAX
+        wp_localize_script($this->plugin_name, 'school_sports_api_admin_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('school_sports_api_reset_cache_nonce'),
+            'reset_confirm_message' => __('Jeste li sigurni da želite resetirati predmemoriju? Svi spremljeni podaci o rezultatima bit će obrisani.', 'school-sports-api'),
+            'reset_success_message' => __('Predmemorija uspješno resetirana.', 'school-sports-api'),
+            'reset_error_message' => __('Došlo je do pogreške prilikom resetiranja predmemorije.', 'school-sports-api'),
+        ));
     }
 
     /**
@@ -74,6 +82,35 @@ class School_Sports_API_Admin {
         );
     }
 
+    /**
+     * Register AJAX handlers.
+     *
+     * @since 1.0.0
+     */
+    public function register_ajax_handlers() {
+        add_action('wp_ajax_school_sports_api_reset_cache', array($this, 'ajax_reset_cache'));
+    }
+
+    /**
+     * AJAX handler for resetting the cache.
+     *
+     * @since 1.0.0
+     */
+    public function ajax_reset_cache() {
+        check_ajax_referer('school_sports_api_reset_cache_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Nemate dopuštenje za ovu radnju.', 'school-sports-api'));
+            return;
+        }
+
+        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-school-sports-api-cache.php';
+        $cache = new School_Sports_API_Cache($this->plugin_name, $this->version);
+        $cache->clear_all_plugin_transients();
+
+        wp_send_json_success(__('Predmemorija uspješno resetirana.', 'school-sports-api'));
+    }
+    
     /**
      * Display options page.
      *
@@ -137,6 +174,14 @@ class School_Sports_API_Admin {
             'cache_duration',
             __('Trajanje Predmemorije (sekunde)', 'school-sports-api'),
             array($this, 'field_cache_duration_callback'),
+            $this->plugin_name,
+            'school_sports_api_section_cache'
+        );
+
+        add_settings_field(
+            'reset_cache_button',
+            __('Resetiraj Predmemoriju', 'school-sports-api'),
+            array($this, 'field_reset_cache_button_callback'),
             $this->plugin_name,
             'school_sports_api_section_cache'
         );
@@ -295,6 +340,16 @@ class School_Sports_API_Admin {
         $value = isset($options['cache_duration']) ? $options['cache_duration'] : 300;
         echo '<input type="number" name="school_sports_api_options[cache_duration]" value="' . esc_attr($value) . '" class="small-text" min="15"> ' . esc_html__('sekundi', 'school-sports-api');
         echo '<p class="description">' . esc_html__('Minimalno 15 sekundi. Preporučeno 300 sekundi (5 minuta).', 'school-sports-api') . '</p>';
+    }
+
+    /**
+     * Field reset cache button callback.
+     *
+     * @since    1.0.0
+     */
+    public function field_reset_cache_button_callback() {
+        echo '<button type="button" id="school-sports-api-reset-cache-button" class="button button-secondary">' . esc_html__('Resetiraj Predmemoriju Sada', 'school-sports-api') . '</button>';
+        echo '<p class="description">' . esc_html__('Kliknite ovaj gumb za trenutno brisanje svih spremljenih podataka o rezultatima. Ovo može biti korisno za rješavanje problema ili za dohvaćanje najnovijih podataka odmah.', 'school-sports-api') . '</p>';
     }
 
     /**

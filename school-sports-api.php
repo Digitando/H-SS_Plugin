@@ -7,11 +7,11 @@
  *
  * @wordpress-plugin
  * Plugin Name:       HŠSS Rezultati
- * Plugin URI:        https://wordpress.org/plugins/school-sports-api/
+ * Plugin URI:        https://github.com/Digitando/H-SS_Plugin
  * Description:       Integrates with the School Sports API to display sports data, results, and schedules.
  * Version:           1.0.0
  * Author:            Digitando
- * Author URI:        https://wordpress.org/
+ * Author URI:        https://www.digitando.net/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       school-sports-api

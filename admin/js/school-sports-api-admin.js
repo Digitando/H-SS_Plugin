@@ -136,5 +136,50 @@
                 alert('Shortcode kopiran u međuspremnik!');
             });
         });
+
+        // Handle Reset Cache button click
+        $('#school-sports-api-reset-cache-button').on('click', function() {
+            if (confirm(school_sports_api_admin_ajax.reset_confirm_message)) {
+                var $button = $(this);
+                var $messageDiv = $('#school-sports-api-cache-reset-message');
+                
+                $button.prop('disabled', true);
+                // Ensure base 'notice' class is present, then add specific type and make visible
+                $messageDiv.attr('class', 'notice notice-info').text('Resetiranje predmemorije...').css('display', 'block !important');
+
+                $.ajax({
+                    url: school_sports_api_admin_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'school_sports_api_reset_cache',
+                        nonce: school_sports_api_admin_ajax.nonce
+                    },
+                    success: function(response) {
+                        var messageText = '';
+                        if (response.success) {
+                            messageText = response.data || school_sports_api_admin_ajax.reset_success_message;
+                            $messageDiv.attr('class', 'notice notice-success').text(messageText).css('display', 'block !important');
+                        } else {
+                            messageText = response.data || school_sports_api_admin_ajax.reset_error_message;
+                            $messageDiv.attr('class', 'notice notice-error').text(messageText).css('display', 'block !important');
+                        }
+                        console.log('Cache reset response:', response); // Log server response
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $messageDiv.attr('class', 'notice notice-error').text(school_sports_api_admin_ajax.reset_error_message).css('display', 'block !important');
+                        console.error('Cache reset AJAX error:', textStatus, errorThrown); // Log AJAX error
+                    },
+                    complete: function() {
+                        $button.prop('disabled', false);
+                        // Hide the message after a few seconds
+                        setTimeout(function() {
+                            $messageDiv.fadeOut(function() {
+                                $(this).css('display', 'none'); // Ensure it's properly hidden for next time
+                            });
+                        }, 5000);
+                    }
+                });
+            }
+        });
     });
 })(jQuery);

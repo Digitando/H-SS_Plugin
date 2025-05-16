@@ -165,6 +165,10 @@ class School_Sports_API {
             if (method_exists($this->admin, 'add_options_page')) {
                 $this->loader->add_action('admin_menu', $this->admin, 'add_options_page');
             }
+
+            if (method_exists($this->admin, 'register_ajax_handlers')) { // Add this block
+                $this->loader->add_action('admin_init', $this->admin, 'register_ajax_handlers');
+            }
             
             if (method_exists($this->admin, 'register_settings')) {
                 $this->loader->add_action('admin_init', $this->admin, 'register_settings');
