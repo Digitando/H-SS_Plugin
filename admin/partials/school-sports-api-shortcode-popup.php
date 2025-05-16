@@ -77,6 +77,12 @@ if (!defined('WPINC')) {
                     <input type="number" id="school-sports-api-refresh-interval" min="30" step="1" placeholder="<?php esc_attr_e('Zadano', 'school-sports-api'); ?>">
                 </div>
             </div>
+
+            <div class="school-sports-api-shortcode-field">
+                <label for="school-sports-api-testing-mode"><?php esc_html_e('Testni Način', 'school-sports-api'); ?></label>
+                <input type="checkbox" id="school-sports-api-testing-mode">
+                <small><?php esc_html_e('Koristi testni API URL.', 'school-sports-api'); ?></small>
+            </div>
             
             <div class="school-sports-api-shortcode-preview">
                 <label><?php esc_html_e('Pregled Shortcodea', 'school-sports-api'); ?></label>

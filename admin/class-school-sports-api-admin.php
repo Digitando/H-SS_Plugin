@@ -168,6 +168,30 @@ class School_Sports_API_Admin {
             $this->plugin_name,
             'school_sports_api_section_realtime'
         );
+        
+        // Add new section for button visibility
+        add_settings_section(
+            'school_sports_api_section_buttons',
+            __('Postavke Vidljivosti Gumba', 'school-sports-api'),
+            array($this, 'section_buttons_callback'),
+            $this->plugin_name
+        );
+
+        add_settings_field(
+            'desktop_button_visible',
+            __('Prikaži Desktop Gumb', 'school-sports-api'),
+            array($this, 'field_desktop_button_visible_callback'),
+            $this->plugin_name,
+            'school_sports_api_section_buttons'
+        );
+
+        add_settings_field(
+            'mobile_button_visible',
+            __('Prikaži Mobilni Gumb', 'school-sports-api'),
+            array($this, 'field_mobile_button_visible_callback'),
+            $this->plugin_name,
+            'school_sports_api_section_buttons'
+        );
     }
 
     /**
@@ -187,18 +211,22 @@ class School_Sports_API_Admin {
 
         // Cache settings
         $valid['cache_duration'] = absint($input['cache_duration']);
-        if ($valid['cache_duration'] < 60) {
-            $valid['cache_duration'] = 60; // Minimum 1 minute
+        if ($valid['cache_duration'] < 15) {
+            $valid['cache_duration'] = 15; // Minimum 15 seconds
         }
 
         // Realtime settings
         $valid['refresh_interval'] = absint($input['refresh_interval']);
-        if ($valid['refresh_interval'] < 30) {
-            $valid['refresh_interval'] = 30; // Minimum 30 seconds
+        if ($valid['refresh_interval'] < 20) {
+            $valid['refresh_interval'] = 20; // Minimum 20 seconds
         }
 
         $valid['websocket_enabled'] = isset($input['websocket_enabled']) ? (bool) $input['websocket_enabled'] : false;
         $valid['websocket_url'] = esc_url_raw($input['websocket_url']);
+
+        // Button visibility settings
+        $valid['desktop_button_visible'] = isset($input['desktop_button_visible']) ? (bool) $input['desktop_button_visible'] : false;
+        $valid['mobile_button_visible'] = isset($input['mobile_button_visible']) ? (bool) $input['mobile_button_visible'] : false;
 
         return $valid;
     }
@@ -262,8 +290,8 @@ class School_Sports_API_Admin {
     public function field_cache_duration_callback() {
         $options = get_option('school_sports_api_options');
         $value = isset($options['cache_duration']) ? $options['cache_duration'] : 300;
-        echo '<input type="number" name="school_sports_api_options[cache_duration]" value="' . esc_attr($value) . '" class="small-text" min="60"> ' . esc_html__('sekundi', 'school-sports-api');
-        echo '<p class="description">' . esc_html__('Minimalno 60 sekundi. Preporučeno 300 sekundi (5 minuta).', 'school-sports-api') . '</p>';
+        echo '<input type="number" name="school_sports_api_options[cache_duration]" value="' . esc_attr($value) . '" class="small-text" min="15"> ' . esc_html__('sekundi', 'school-sports-api');
+        echo '<p class="description">' . esc_html__('Minimalno 15 sekundi. Preporučeno 300 sekundi (5 minuta).', 'school-sports-api') . '</p>';
     }
 
     /**
@@ -283,8 +311,8 @@ class School_Sports_API_Admin {
     public function field_refresh_interval_callback() {
         $options = get_option('school_sports_api_options');
         $value = isset($options['refresh_interval']) ? $options['refresh_interval'] : 60;
-        echo '<input type="number" name="school_sports_api_options[refresh_interval]" value="' . esc_attr($value) . '" class="small-text" min="30"> ' . esc_html__('sekundi', 'school-sports-api');
-        echo '<p class="description">' . esc_html__('Minimalno 30 sekundi. Preporučeno 60 sekundi (1 minuta).', 'school-sports-api') . '</p>';
+        echo '<input type="number" name="school_sports_api_options[refresh_interval]" value="' . esc_attr($value) . '" class="small-text" min="20"> ' . esc_html__('sekundi', 'school-sports-api');
+        echo '<p class="description">' . esc_html__('Minimalno 20 sekundi. Preporučeno 60 sekundi (1 minuta).', 'school-sports-api') . '</p>';
     }
 
     /**
@@ -309,6 +337,39 @@ class School_Sports_API_Admin {
         $value = isset($options['websocket_url']) ? $options['websocket_url'] : '';
         echo '<input type="url" name="school_sports_api_options[websocket_url]" value="' . esc_attr($value) . '" class="regular-text">';
         echo '<p class="description">' . esc_html__('URL WebSocket poslužitelja (npr. wss://example.com/ws).', 'school-sports-api') . '</p>';
+    }
+
+    /**
+     * Section buttons callback.
+     *
+     * @since    1.0.0
+     */
+    public function section_buttons_callback() {
+        echo '<p>' . esc_html__('Konfigurirajte vidljivost Elementor gumba na različitim uređajima.', 'school-sports-api') . '</p>';
+    }
+
+    /**
+     * Field desktop button visible callback.
+     *
+     * @since    1.0.0
+     */
+    public function field_desktop_button_visible_callback() {
+        $options = get_option('school_sports_api_options');
+        $value = isset($options['desktop_button_visible']) ? $options['desktop_button_visible'] : false;
+        echo '<input type="checkbox" name="school_sports_api_options[desktop_button_visible]" value="1" ' . checked(1, $value, false) . '>';
+        echo '<p class="description">' . esc_html__('Prikazuje Elementor gumb s ID-om "DesktopButton" samo na desktop i laptop uređajima. Ova postavka će nadjačati Elementor responsive postavke.', 'school-sports-api') . '</p>';
+    }
+
+    /**
+     * Field mobile button visible callback.
+     *
+     * @since    1.0.0
+     */
+    public function field_mobile_button_visible_callback() {
+        $options = get_option('school_sports_api_options');
+        $value = isset($options['mobile_button_visible']) ? $options['mobile_button_visible'] : false;
+        echo '<input type="checkbox" name="school_sports_api_options[mobile_button_visible]" value="1" ' . checked(1, $value, false) . '>';
+        echo '<p class="description">' . esc_html__('Prikazuje Elementor gumb s ID-om "MobileButton" samo na tablet i mobilnim uređajima. Ova postavka će nadjačati Elementor responsive postavke.', 'school-sports-api') . '</p>';
     }
 
     /**

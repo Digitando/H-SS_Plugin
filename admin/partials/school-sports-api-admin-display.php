@@ -95,6 +95,12 @@ if (!defined('WPINC')) {
                             </ul>
                         </td>
                     </tr>
+                    <tr>
+                        <td><code>testing</code></td>
+                        <td><?php esc_html_e('Koristi testni API URL (vrijednost mora biti "test")', 'school-sports-api'); ?></td>
+                        <td><code>test</code> </td>
+                        <td><code>test</code></td>
+                    </tr>
                 </tbody>
             </table>
             
@@ -127,6 +133,12 @@ if (!defined('WPINC')) {
                         <td><?php esc_html_e('Interval u sekundama za osvježavanje rezultata uživo', 'school-sports-api'); ?></td>
                         <td><?php esc_html_e('(koristi globalnu postavku)', 'school-sports-api'); ?></td>
                         <td><?php esc_html_e('Bilo koji pozitivan broj (npr. 30, 60, 120)', 'school-sports-api'); ?></td>
+                    </tr>
+                     <tr>
+                        <td><code>testing</code></td>
+                        <td><?php esc_html_e('Koristi testni API URL (vrijednost mora biti "test")', 'school-sports-api'); ?></td>
+                        <td>(prazno)</td>
+                        <td><code>test</code></td>
                     </tr>
                 </tbody>
             </table>
@@ -206,6 +218,12 @@ if (!defined('WPINC')) {
                         <input type="number" id="admin-refresh-interval" min="30" step="1" placeholder="<?php esc_attr_e('Zadano', 'school-sports-api'); ?>">
                     </div>
                 </div>
+
+                <div class="school-sports-api-shortcode-field">
+                    <label for="admin-testing-mode"><?php esc_html_e('Testni Način', 'school-sports-api'); ?></label>
+                    <input type="checkbox" id="admin-testing-mode">
+                    <p class="description"><?php esc_html_e('Ako je označeno, koristit će testni API URL.', 'school-sports-api'); ?></p>
+                </div>
                 
                 <div class="school-sports-api-shortcode-preview">
                     <label><?php esc_html_e('Pregled Shortcodea', 'school-sports-api'); ?></label>
@@ -220,7 +238,7 @@ if (!defined('WPINC')) {
             <script>
                 jQuery(document).ready(function($) {
                     // Update shortcode preview on change
-                    $('#admin-shortcode-type, #admin-sport, #admin-school-type, #admin-school-year, #admin-live-school-type, #admin-refresh-interval').on('change input', updateShortcodePreview);
+                    $('#admin-shortcode-type, #admin-sport, #admin-school-type, #admin-school-year, #admin-live-school-type, #admin-refresh-interval, #admin-testing-mode').on('change input', updateShortcodePreview);
                     
                     // Toggle options based on shortcode type
                     $('#admin-shortcode-type').on('change', function() {
@@ -280,6 +298,11 @@ if (!defined('WPINC')) {
                             }
                         }
                         
+                        var testingMode = $('#admin-testing-mode').is(':checked');
+                        if (testingMode) {
+                            shortcode += ' testing="test"';
+                        }
+
                         shortcode += ']';
                         
                         $('#admin-shortcode-preview').val(shortcode);

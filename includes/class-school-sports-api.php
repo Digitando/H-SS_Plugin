@@ -91,6 +91,8 @@ class School_Sports_API {
     private function load_dependencies() {
         try {
             $plugin_path = plugin_dir_path(dirname(__FILE__));
+            // Removed class-school-sports-api-activator.php and class-school-sports-api-deactivator.php
+            // as their logic is consolidated into the main plugin file's activation/deactivation hooks.
             $files_to_include = array(
                 'includes/class-school-sports-api-loader.php',
                 'includes/class-school-sports-api-i18n.php',
@@ -226,8 +228,12 @@ class School_Sports_API {
                 $this->loader->add_action('init', $this->public, 'schedule_live_updates');
             }
             
-            if (method_exists($this->public, 'add_shortcode_classes')) {
-                $this->loader->add_filter('the_content', $this->public, 'add_shortcode_classes', 99);
+            // Removed add_shortcode_classes hook as the method was removed from School_Sports_API_Public
+            // and data attributes are now added directly in the shortcode HTML generation.
+            
+            // Add body class filter for button visibility with high priority
+            if (method_exists($this->public, 'add_body_classes')) {
+                $this->loader->add_filter('body_class', $this->public, 'add_body_classes', 9999);
             }
         } catch (Exception $e) {
             // Log error but don't crash

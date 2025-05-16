@@ -80,9 +80,31 @@ class School_Sports_API_Realtime {
         
         // Get school type from request if provided
         $school_type = isset($_POST['school_type']) ? sanitize_text_field(wp_unslash($_POST['school_type'])) : '';
+        $testing = isset($_POST['testing']) ? sanitize_text_field(wp_unslash($_POST['testing'])) : '';
+
+        $is_testing = ($testing === 'test');
+        if ($is_testing) {
+            // Note: The School_Sports_API_Shortcodes class has the use_test_api_url method.
+            // To access it here, we'd need an instance of it, or make that method static,
+            // or duplicate the filter callback logic.
+            // For simplicity in this AJAX context, we'll assume the shortcodes class is available
+            // or we might need to adjust how the filter is added if this class doesn't have direct access.
+            // A cleaner way would be to pass the shortcodes object or make the callback universally accessible.
+            // For now, let's assume we can access it or a similar static/global helper.
+            // This might require an instance of School_Sports_API_Shortcodes if not static.
+            // Let's assume $this->shortcodes is available if this class is instantiated by the main plugin class.
+            // However, $this->shortcodes is not a property of School_Sports_API_Realtime.
+            // We will need to add the filter directly or use a helper.
+            // For now, we'll add a temporary local callback.
+            add_filter('school_sports_api_base_url', array($this, 'use_test_api_url_realtime_callback'), 10, 1);
+        }
         
         // Get live results from API
         $data = $this->api->get_live_results(true); // Use cache with short expiration
+        
+        if ($is_testing) {
+            remove_filter('school_sports_api_base_url', array($this, 'use_test_api_url_realtime_callback'), 10);
+        }
         
         // Check for errors
         if (is_wp_error($data)) {
@@ -106,35 +128,25 @@ class School_Sports_API_Realtime {
             $html .= '<!-- Debug: Filter found in HTML -->';
         } else {
             $html .= '<!-- Debug: Filter NOT found in HTML -->';
-        }
-        
-        // Force filter to be visible with inline styles
-        $html = str_replace(
-            '<div class="school-sports-api-filter"',
-            '<div class="school-sports-api-filter" style="display:block !important; visibility:visible !important;"',
-            $html
-        );
-        
-        $html = str_replace(
-            '<select',
-            '<select style="display:block !important; visibility:visible !important;"',
-            $html
-        );
-        
-        // Use a less restrictive kses filter to allow inline styles
-        echo wp_kses($html, array(
-            'div' => array(
-                'class' => array(),
-                'id' => array(),
-                'style' => array(),
-                'data-group' => array(),
-                'data-gender' => array(),
-                'data-school-type' => array()
-            ),
-            'select' => array(
-                'style' => array()
-            ),
-            'option' => array(
+            }
+            
+            // Inline styles for filter visibility removed. CSS will handle this.
+            
+            // Use a less restrictive kses filter to allow inline styles (if any remain for other purposes)
+            // Or, ideally, use a more specific kses setup if all inline styles are removed.
+            echo wp_kses($html, array(
+                'div' => array(
+                    'class' => array(),
+                    'id' => array(),
+                    // 'style' => array(), // Style attribute removed for divs
+                    'data-group' => array(),
+                    'data-gender' => array(),
+                    'data-school-type' => array()
+                ),
+                'select' => array(
+                    // 'style' => array() // Style attribute removed for selects
+                ),
+                'option' => array(
                 'value' => array(),
                 'selected' => array()
             ),
@@ -155,6 +167,10 @@ class School_Sports_API_Realtime {
                 'class' => array(),
                 'style' => array()
             ),
+            'strong' => array(),
+            'b' => array(),
+            'em' => array(),
+            'i' => array(),
             '!--' => array() // Allow HTML comments
         ));
         wp_die();
@@ -219,38 +235,8 @@ class School_Sports_API_Realtime {
         // Add debug information
         $html = '<!-- Debug: Live results data received -->';
         
-        // Generate filter dropdown if there are multiple sports/genders
-        $filters = array();
-        foreach ($data as $sport) {
-            foreach ($sport['natjecanja'] as $natjecanje) {
-                $gender = $natjecanje['spol'];
-                $gender_key = sanitize_title($gender);
-                $filters['all-' . $gender_key] = __('Sve', 'school-sports-api') . ' - ' . $gender;
-                
-                foreach ($natjecanje['faza'] as $faza) {
-                    foreach ($faza['grupa'] as $grupa) {
-                        // Ensure consistent group ID format
-                        $group_name = sanitize_title($grupa['naziv']);
-                        $group_id = 'group-' . $gender_key . '-' . $group_name;
-                        $filters[$group_id] = $grupa['naziv'] . ' - ' . $gender;
-                    }
-                }
-            }
-        }
-        
-        // Always add filter dropdown, even if there's only one option
-        $html .= '<!-- Debug: Filter count: ' . count($filters) . ' -->';
-        $html .= '<div class="school-sports-api-filter" style="display:block !important;">';
-        $html .= '<select style="display:block !important;">';
-        $html .= '<option value="all">' . __('Sve Grupe', 'school-sports-api') . '</option>';
-        
-        foreach ($filters as $filter_id => $filter_name) {
-            $html .= '<!-- Debug: Filter option: ' . $filter_id . ' -->';
-            $html .= '<option value="' . esc_attr($filter_id) . '">' . esc_html($filter_name) . '</option>';
-        }
-        
-        $html .= '</select>';
-        $html .= '</div>';
+        // We're not generating the filter here anymore - it will be handled by JavaScript
+        // This prevents filter duplication on refresh
         
         // Generate content for each sport
         foreach ($data as $sport) {
@@ -312,14 +298,30 @@ class School_Sports_API_Realtime {
                                 $html .= '<td>' . esc_html($utakmica['sudionici'][0]['naziv']) . '</td>';
                                 $html .= '<td>' . esc_html($utakmica['sudionici'][1]['naziv']) . '</td>';
                                 
-                                // Strip HTML tags from the result
-                                $result = wp_strip_all_tags($utakmica['rezultatPrikaz']);
+                                // Allow specific HTML tags in the result for styling
+                                $allowed_html = array(
+                                    'span' => array(
+                                        'class' => array(),
+                                        'style' => array(),
+                                    ),
+                                    'div' => array(
+                                        'class' => array(),
+                                        'style' => array(),
+                                    ),
+                                    'strong' => array(),
+                                    'b' => array(),
+                                    'em' => array(),
+                                    'i' => array(),
+                                );
+                                
+                                // Keep the HTML styling but sanitize it
+                                $result = wp_kses($utakmica['rezultatPrikaz'], $allowed_html);
                                 
                                 // Add live indicator to result if match is live
                                 if ($is_live) {
-                                    $html .= '<td><span class="school-sports-api-live-indicator"></span> ' . esc_html($result) . '</td>';
+                                    $html .= '<td><span class="school-sports-api-live-indicator"></span> ' . $result . '</td>';
                                 } else {
-                                    $html .= '<td>' . esc_html($result) . '</td>';
+                                    $html .= '<td>' . $result . '</td>';
                                 }
                                 
                                 $html .= '</tr>';
@@ -522,5 +524,16 @@ class School_Sports_API_Realtime {
         //         'changes' => $changes,
         //     ),
         // ));
+    }
+
+    /**
+     * Callback function to use the test API URL for realtime AJAX.
+     *
+     * @since 1.0.1
+     * @param string $url The current API URL (unused in this override).
+     * @return string The test API URL.
+     */
+    public function use_test_api_url_realtime_callback($url) {
+        return 'https://test.skolski-sport.hr/api/';
     }
 }

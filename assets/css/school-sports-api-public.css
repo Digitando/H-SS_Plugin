@@ -32,27 +32,27 @@
 
 /* Filter Styles */
 .school-sports-api-filter {
-    display: block !important;
+    display: block; /* Default to block, JS can hide if needed initially */
     flex-direction: column;
     gap: 10px;
     margin-bottom: 15px;
-    visibility: visible !important;
-    opacity: 1 !important;
+    visibility: visible; /* Default to visible */
+    opacity: 1; /* Default to visible */
     background-color: white;
     padding: 10px;
     border-radius: 6px;
 }
 
 .school-sports-api-filter select {
-    display: block !important;
+    display: block; /* Default to block */
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 16px;
     background-color: white;
-    visibility: visible !important;
-    opacity: 1 !important;
+    visibility: visible; /* Default to visible */
+    opacity: 1; /* Default to visible */
 }
 
 /* Tabs */
@@ -431,4 +431,9 @@
         min-width: 25px;
         max-width: 80px;
     }
+}
+
+/* Button visibility styles are now in a separate file: button-visibility.css */
+.ssa-group-hidden {
+    display: none !important; /* Use !important to ensure override */
 }

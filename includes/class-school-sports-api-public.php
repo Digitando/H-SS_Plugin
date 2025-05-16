@@ -64,7 +64,36 @@ class School_Sports_API_Public {
      * @since    1.0.0
      */
     public function enqueue_styles() {
+        // Enqueue the main plugin CSS
         wp_enqueue_style($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/css/school-sports-api-public.css', array(), $this->version, 'all');
+        
+        // Enqueue custom live results CSS with high priority
+        wp_enqueue_style(
+            $this->plugin_name . '-custom-live-results', 
+            plugin_dir_url(dirname(__FILE__)) . 'assets/css/custom-live-results.css', 
+            array(), 
+            $this->version . '.' . time(), // Add timestamp to prevent caching
+            'all'
+        );
+        
+        // Enqueue button visibility CSS with very high priority
+        wp_enqueue_style(
+            $this->plugin_name . '-button-visibility', 
+            plugin_dir_url(dirname(__FILE__)) . 'assets/css/button-visibility.css', 
+            array(), 
+            $this->version . '.' . time(), // Add timestamp to prevent caching
+            'all'
+        );
+        
+        // Set the highest priority possible for the CSS files
+        global $wp_styles;
+        if (isset($wp_styles->registered[$this->plugin_name . '-button-visibility'])) {
+            $wp_styles->registered[$this->plugin_name . '-button-visibility']->extra['after'] = array('media="all"');
+        }
+        
+        if (isset($wp_styles->registered[$this->plugin_name . '-custom-live-results'])) {
+            $wp_styles->registered[$this->plugin_name . '-custom-live-results']->extra['after'] = array('media="all"');
+        }
     }
 
     /**
@@ -73,17 +102,30 @@ class School_Sports_API_Public {
      * @since    1.0.0
      */
     public function enqueue_scripts() {
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-public.js', array('jquery'), $this->version, true);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-public.js', array('jquery'), $this->version . '.' . time(), true);
         
         // Get options
         $options = get_option('school_sports_api_options');
         $refresh_interval = isset($options['refresh_interval']) ? absint($options['refresh_interval']) : 60;
+        
+        // Get button visibility settings
+        $desktop_button_visible = isset($options['desktop_button_visible']) ? (bool) $options['desktop_button_visible'] : false;
+        $mobile_button_visible = isset($options['mobile_button_visible']) ? (bool) $options['mobile_button_visible'] : false;
         
         // Localize script
         wp_localize_script($this->plugin_name, 'school_sports_api', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('school-sports-api-nonce'),
             'refresh_interval' => $refresh_interval,
+            'desktop_button_visible' => $desktop_button_visible,
+            'mobile_button_visible' => $mobile_button_visible,
+            // Add translations for JavaScript
+            'translations' => array(
+                'loading' => __('Učitavanje...', 'school-sports-api'),
+                'lastUpdated' => __('Zadnje ažurirano', 'school-sports-api'),
+                'error' => __('Greška pri učitavanju podataka. Molimo pokušajte ponovno.', 'school-sports-api'),
+                'noResults' => __('Nema rezultata za prikaz.', 'school-sports-api'),
+            ),
         ));
     }
 
@@ -94,6 +136,26 @@ class School_Sports_API_Public {
      */
     public function register_shortcodes() {
         $this->shortcodes->register_shortcodes();
+    }
+    
+    /**
+     * Add body classes for button visibility.
+     *
+     * @since    1.0.0
+     */
+    public function add_body_classes($classes) {
+        $options = get_option('school_sports_api_options');
+        
+        // Add classes based on button visibility settings
+        if (empty($options['desktop_button_visible'])) {
+            $classes[] = 'desktop-button-hidden';
+        }
+        
+        if (empty($options['mobile_button_visible'])) {
+            $classes[] = 'mobile-button-hidden';
+        }
+        
+        return $classes;
     }
 
     /**
@@ -125,77 +187,78 @@ class School_Sports_API_Public {
         $sport = isset($_POST['sport']) ? sanitize_text_field(wp_unslash($_POST['sport'])) : 'odbojka';
         $school_type = isset($_POST['school_type']) ? sanitize_text_field(wp_unslash($_POST['school_type'])) : 'ss';
         $school_year = isset($_POST['school_year']) ? sanitize_text_field(wp_unslash($_POST['school_year'])) : '2024';
-        
+        $testing = isset($_POST['testing']) ? sanitize_text_field(wp_unslash($_POST['testing'])) : '';
+
         // Generate shortcode output
         $atts = array(
             'sport' => $sport,
             'school_type' => $school_type,
             'school_year' => $school_year,
+            'testing' => $testing, // Pass testing status to shortcode handler
         );
         
+        // The results_shortcode method itself handles adding/removing the filter
+        // based on the 'testing' attribute.
         $html = $this->shortcodes->results_shortcode($atts);
         
         // Add debug comment at the end
         $html .= '<!-- Debug: Refreshed at ' . gmdate('H:i:s') . ' -->';
+
+        // Define allowed HTML for the AJAX response, specifically for the filter
+        $allowed_html_for_filter = array(
+            'div' => array(
+                'class' => array(),
+                'id' => array(),
+                'style' => array(),
+                'data-group' => array(),
+                'data-gender' => array(),
+                'data-tab' => array(), // For tabs
+            ),
+            'select' => array(
+                'class' => array(),
+                'id' => array(),
+                'name' => array(),
+                'style' => array(),
+            ),
+            'option' => array(
+                'value' => array(),
+                'selected' => array(),
+            ),
+            'h3' => array(),
+            'h4' => array(),
+            'h5' => array(),
+            'p' => array(),
+            'table' => array(
+                'class' => array(),
+            ),
+            'thead' => array(),
+            'tbody' => array(),
+            'tr' => array(),
+            'th' => array(
+                'colspan' => array(),
+                'rowspan' => array(),
+            ),
+            'td' => array(
+                'colspan' => array(),
+                'rowspan' => array(),
+            ),
+            'span' => array( // For results formatting
+                'class' => array(),
+                'style' => array(),
+            ),
+            'strong' => array(),
+            'b' => array(),
+            'em' => array(),
+            'i' => array(),
+            'br' => array(),
+            '!--' => array(), // Allow comments
+        );
         
-        echo wp_kses_post($html);
+        echo wp_kses($html, $allowed_html_for_filter);
         wp_die();
     }
 
-    /**
-     * Add shortcode classes to container.
-     *
-     * @since    1.0.0
-     * @param    string    $content    The content.
-     * @return   string                The modified content.
-     */
-    public function add_shortcode_classes($content) {
-        // Check if content contains our shortcode
-        if (strpos($content, 'school-sports-api-container') === false) {
-            return $content;
-        }
-        
-        // Use regex to find shortcode attributes
-        $pattern = '/\[school_sports_api_results([^\]]*)\]/';
-        preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
-        
-        foreach ($matches as $match) {
-            $shortcode = $match[0];
-            $atts_string = isset($match[1]) ? $match[1] : '';
-            
-            // Parse attributes
-            $atts = array();
-            $pattern = '/(\w+)=[\'"]([^\'"]*)[\'"]|(\w+)=([^\s\'"]+)/';
-            preg_match_all($pattern, $atts_string, $att_matches, PREG_SET_ORDER);
-            
-            foreach ($att_matches as $att_match) {
-                $key = !empty($att_match[1]) ? $att_match[1] : $att_match[3];
-                $value = !empty($att_match[2]) ? $att_match[2] : $att_match[4];
-                $atts[$key] = $value;
-            }
-            
-            // Generate classes
-            $classes = array();
-            if (isset($atts['sport'])) {
-                $classes[] = 'sport-' . sanitize_html_class($atts['sport']);
-            }
-            
-            if (isset($atts['school_type'])) {
-                $classes[] = 'school-type-' . sanitize_html_class($atts['school_type']);
-            }
-            
-            if (isset($atts['school_year'])) {
-                $classes[] = 'school-year-' . sanitize_html_class($atts['school_year']);
-            }
-            
-            // Replace the first div with one that has our classes
-            $class_string = implode(' ', $classes);
-            $replacement = '<div class="school-sports-api-container ' . $class_string . '"';
-            $content = preg_replace('/<div class="school-sports-api-container"/', $replacement, $content, 1);
-        }
-        
-        return $content;
-    }
+    // The add_shortcode_classes method is removed as data attributes are now added directly in generate_results_html.
 
     /**
      * Initialize WebSocket server if enabled.

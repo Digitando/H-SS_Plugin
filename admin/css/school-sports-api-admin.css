@@ -93,6 +93,13 @@
     width: 100%;
 }
 
+/* Override width for checkboxes to prevent them from stretching */
+.school-sports-api-shortcode-field input[type="checkbox"] {
+    width: auto !important;
+    height: 17px !important;
+    margin-right: 5px; /* Optional: add some space next to the checkbox */
+}
+
 .school-sports-api-shortcode-preview {
     margin-top: 20px;
     margin-bottom: 15px;

@@ -72,10 +72,20 @@ class School_Sports_API_Shortcodes {
             'school_type' => 'ss', // ss = high school, os = elementary school
             'gender' => '', // Kept for backward compatibility but not used for filtering
             'school_year' => '2024',
+            'testing' => '', // New attribute for testing
         ), $atts, 'school_sports_api_results');
+
+        $is_testing = ($atts['testing'] === 'test');
+        if ($is_testing) {
+            add_filter('school_sports_api_base_url', array($this, 'use_test_api_url'), 10, 1);
+        }
         
         // Get data from API
         $data = $this->api->get_sports_data($atts['sport'], $atts['school_year']);
+        
+        if ($is_testing) {
+            remove_filter('school_sports_api_base_url', array($this, 'use_test_api_url'), 10);
+        }
         
         // Check for errors
         if (is_wp_error($data)) {
@@ -136,17 +146,20 @@ class School_Sports_API_Shortcodes {
         $atts = shortcode_atts(array(
             'refresh_interval' => '', // Override default refresh interval
             'school_type' => '', // Optional school type filter for live results
+            'testing' => '', // New attribute for testing
         ), $atts, 'school_sports_api_live');
         
+        $testing_attr = ($atts['testing'] === 'test') ? ' data-testing="test"' : '';
+
         // Generate HTML container for AJAX loading
         $html = '<div class="school-sports-api-container">';
         $html .= '<div class="school-sports-api-live-header">';
         $html .= '<h2>' . __('Rezultati Uživo', 'school-sports-api') . ' <span class="school-sports-api-live-indicator"></span></h2>';
         $html .= '</div>';
         
-        // Add school type as a data attribute for AJAX filtering
+        // Add school type and testing mode as a data attribute for AJAX filtering
         $school_type_attr = !empty($atts['school_type']) ? ' data-school-type="' . esc_attr($atts['school_type']) . '"' : '';
-        $html .= '<div class="school-sports-api-live"' . $school_type_attr . '></div>';
+        $html .= '<div class="school-sports-api-live"' . $school_type_attr . $testing_attr . '></div>';
         $html .= '</div>';
         
         // Add custom refresh interval if specified
@@ -166,11 +179,21 @@ class School_Sports_API_Shortcodes {
      * @return   string             The generated HTML.
      */
     private function generate_results_html($data, $atts) {
+        $testing_attr = ($atts['testing'] === 'test') ? ' data-testing="test"' : '';
+        
+        // Prepare data attributes for the main container
+        $data_attrs = ' data-sport="' . esc_attr($atts['sport']) . '"';
+        $data_attrs .= ' data-school-type="' . esc_attr($atts['school_type']) . '"';
+        $data_attrs .= ' data-school-year="' . esc_attr($atts['school_year']) . '"';
+        $data_attrs .= $testing_attr; // Add testing attribute if present
+
+        $container_classes = 'school-sports-api-container';
+
         if (empty($data)) {
-            return '<div class="school-sports-api-container"><p>' . __('Nema pronađenih rezultata.', 'school-sports-api') . '</p></div>';
+            return '<div class="' . esc_attr($container_classes) . '"' . $data_attrs . '><p>' . __('Nema pronađenih rezultata.', 'school-sports-api') . '</p></div>';
         }
         
-        $html = '<div class="school-sports-api-container">';
+        $html = '<div class="' . esc_attr($container_classes) . '"' . $data_attrs . '>';
         
         // Add tabs if multiple genders are present
         $genders = array();
@@ -185,18 +208,45 @@ class School_Sports_API_Shortcodes {
             $html .= '<div class="school-sports-api-tabs">';
             foreach ($genders as $index => $gender) {
                 $active = $index === 0 ? ' active' : '';
-                $tab_id = 'school-sports-api-tab-' . sanitize_title($gender);
-                $html .= '<div class="school-sports-api-tab' . $active . '" data-tab="' . $tab_id . '">' . esc_html($gender) . '</div>';
+                $trimmed_lower_gender = strtolower(trim($gender));
+                $slug_part = '';
+                // Use strpos for more robust matching against variations like "Djevojke (SS)"
+                if (strpos($trimmed_lower_gender, 'djevojke') !== false) {
+                    $slug_part = 'djevojke';
+                } elseif (strpos($trimmed_lower_gender, 'mladići') !== false || strpos($trimmed_lower_gender, 'mladici') !== false) { // Check for 'mladići' or 'mladici'
+                    $slug_part = 'mladici';
+                } elseif (strpos($trimmed_lower_gender, 'dječaci') !== false || strpos($trimmed_lower_gender, 'djecaci') !== false) { // Check for 'dječaci' or 'djecaci'
+                    $slug_part = 'djecaci';
+                } elseif (strpos($trimmed_lower_gender, 'djevojčice') !== false || strpos($trimmed_lower_gender, 'djevojcice') !== false) { // Check for 'djevojčice' or 'djevojcice'
+                    $slug_part = 'djevojcice';
+                } else {
+                    $slug_part = sanitize_title($trimmed_lower_gender); // Fallback for other/new gender strings
+                }
+                $tab_id = 'school-sports-api-tab-' . $slug_part;
+                $html .= '<div class="school-sports-api-tab' . $active . '" data-tab="' . esc_attr($tab_id) . '">' . esc_html($gender) . '</div>';
             }
             $html .= '</div>';
         }
         
         // Process each gender
         foreach ($genders as $index => $gender) {
-            $tab_id = 'school-sports-api-tab-' . sanitize_title($gender);
+            $trimmed_lower_gender = strtolower(trim($gender));
+            $slug_part = '';
+            // Use strpos for more robust matching against variations
+            if (strpos($trimmed_lower_gender, 'djevojke') !== false) {
+                $slug_part = 'djevojke';
+            } elseif (strpos($trimmed_lower_gender, 'mladići') !== false || strpos($trimmed_lower_gender, 'mladici') !== false) {
+                $slug_part = 'mladici';
+            } elseif (strpos($trimmed_lower_gender, 'dječaci') !== false || strpos($trimmed_lower_gender, 'djecaci') !== false) {
+                $slug_part = 'djecaci';
+            } elseif (strpos($trimmed_lower_gender, 'djevojčice') !== false || strpos($trimmed_lower_gender, 'djevojcice') !== false) {
+                $slug_part = 'djevojcice';
+            } else {
+                $slug_part = sanitize_title($trimmed_lower_gender); // Fallback
+            }
+            $tab_id = 'school-sports-api-tab-' . $slug_part;
             $display = $index === 0 || count($genders) === 1 ? '' : ' style="display:none;"';
-            
-            $html .= '<div id="' . $tab_id . '" class="school-sports-api-tab-content"' . $display . '>';
+            $html .= '<div id="' . esc_attr($tab_id) . '" class="school-sports-api-tab-content"' . $display . '>';
             
             // Filter data for this gender
             $gender_data = array();
@@ -280,9 +330,25 @@ class School_Sports_API_Shortcodes {
                                 $html .= '<td>' . esc_html($utakmica['sudionici'][0]['naziv']) . '</td>';
                                 $html .= '<td>' . esc_html($utakmica['sudionici'][1]['naziv']) . '</td>';
                                 
-                                // Strip HTML tags from the result
-                                $result = wp_strip_all_tags($utakmica['rezultatPrikaz']);
-                                $html .= '<td>' . esc_html($result) . '</td>';
+                                // Allow specific HTML tags in the result for styling
+                                $allowed_html = array(
+                                    'span' => array(
+                                        'class' => array(),
+                                        'style' => array(),
+                                    ),
+                                    'div' => array(
+                                        'class' => array(),
+                                        'style' => array(),
+                                    ),
+                                    'strong' => array(),
+                                    'b' => array(),
+                                    'em' => array(),
+                                    'i' => array(),
+                                );
+                                
+                                // Keep the HTML styling but sanitize it
+                                $result = wp_kses($utakmica['rezultatPrikaz'], $allowed_html);
+                                $html .= '<td>' . $result . '</td>';
                                 
                                 $html .= '</tr>';
                             }
@@ -491,5 +557,16 @@ class School_Sports_API_Shortcodes {
         $html .= '</tbody></table>';
         
         return $html;
+    }
+
+    /**
+     * Callback function to use the test API URL.
+     *
+     * @since 1.0.1
+     * @param string $url The current API URL (unused in this override).
+     * @return string The test API URL.
+     */
+    public function use_test_api_url($url) {
+        return 'https://test.skolski-sport.hr/api/';
     }
 }

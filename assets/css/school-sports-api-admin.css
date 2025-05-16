@@ -101,3 +101,9 @@
 .school-sports-api-shortcode-actions {
     text-align: right;
 }
+/* Ensure admin checkboxes are not overly large */
+.school-sports-api-shortcode-field input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    margin-right: 5px; /* Optional: adds a little space if label is next to it */
+}

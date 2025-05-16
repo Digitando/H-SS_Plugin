@@ -56,11 +56,16 @@ class School_Sports_API_API {
      */
     private function get_credentials() {
         $options = get_option('school_sports_api_options');
+        $default_api_url = 'https://portal.skolski-sport.hr/api/';
         
+        // Allow overriding the API URL via a filter.
+        // The shortcode handler will add/remove this filter temporarily for testing.
+        $api_url = apply_filters('school_sports_api_base_url', (isset($options['api_url']) && !empty($options['api_url']) ? $options['api_url'] : $default_api_url));
+
         return array(
             'username' => isset($options['api_username']) ? $options['api_username'] : 'web',
             'password' => isset($options['api_password']) ? $options['api_password'] : 'e51eo24nzyXDWRFkT7We7G5YR7KCM04u',
-            'api_url' => isset($options['api_url']) ? $options['api_url'] : 'https://portal.skolski-sport.hr/api/',
+            'api_url' => $api_url,
         );
     }
 
@@ -195,6 +200,15 @@ class School_Sports_API_API {
      * @return   mixed                   The sports data or WP_Error.
      */
     public function get_sports_data($sport = 'odbojka', $school_year = '2024', $use_cache = true) {
+        // Determine effective cache usage.
+        // For AJAX refreshes of the main results table (fetch_sports_results action),
+        // we bypass the cache to ensure the data reflects the JS polling interval.
+        // For other contexts (e.g., initial page load), the standard cache logic applies.
+        $effective_use_cache = $use_cache;
+        if (wp_doing_ajax() && isset($_POST['action']) && $_POST['action'] === 'fetch_sports_results') {
+            $effective_use_cache = false;
+        }
+
         // Set up parameters
         $params = array(
             'rubrika' => 'dohvatiNatjecanje',
@@ -203,7 +217,7 @@ class School_Sports_API_API {
         );
         
         // Make request
-        $data = $this->make_request('rubrika=dohvatiNatjecanje', $params, $use_cache);
+        $data = $this->make_request('rubrika=dohvatiNatjecanje', $params, $effective_use_cache);
         
         return $data;
     }

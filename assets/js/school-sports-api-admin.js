@@ -39,7 +39,8 @@
      */
     $(document).ready(function() {
         // Update shortcode preview on change
-        $('#school-sports-api-shortcode-type, #school-sports-api-sport, #school-sports-api-school-type, #school-sports-api-school-year, #school-sports-api-live-school-type, #school-sports-api-refresh-interval').on('change input', updateShortcodePreview);
+        // Added #school-sports-api-testing-mode to the list of selectors
+        $('#school-sports-api-shortcode-type, #school-sports-api-sport, #school-sports-api-school-type, #school-sports-api-school-year, #school-sports-api-live-school-type, #school-sports-api-refresh-interval, #school-sports-api-testing-mode').on('change input', updateShortcodePreview);
         
         // Toggle options based on shortcode type
         $('#school-sports-api-shortcode-type').on('change', function() {
@@ -109,6 +110,11 @@
             if (schoolYear) {
                 shortcode += ' school_year="' + schoolYear + '"';
             }
+        }
+
+        var testingMode = $('#school-sports-api-testing-mode').is(':checked');
+        if (testingMode) {
+            shortcode += ' testing="test"';
         }
         
         shortcode += ']';
