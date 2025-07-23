@@ -135,6 +135,29 @@ class School_Sports_API_Shortcodes {
     }
 
     /**
+     * Convert a gender string into a slug used for element IDs.
+     *
+     * @since 1.0.0
+     * @param string $gender The gender string.
+     * @return string The slug.
+     */
+    private function get_gender_slug($gender) {
+        $trimmed_lower_gender = strtolower(trim($gender));
+
+        if (strpos($trimmed_lower_gender, 'djevojke') !== false) {
+            return 'djevojke';
+        } elseif (strpos($trimmed_lower_gender, 'mladići') !== false || strpos($trimmed_lower_gender, 'mladici') !== false) {
+            return 'mladici';
+        } elseif (strpos($trimmed_lower_gender, 'dječaci') !== false || strpos($trimmed_lower_gender, 'djecaci') !== false) {
+            return 'djecaci';
+        } elseif (strpos($trimmed_lower_gender, 'djevojčice') !== false || strpos($trimmed_lower_gender, 'djevojcice') !== false) {
+            return 'djevojcice';
+        }
+
+        return sanitize_title($trimmed_lower_gender);
+    }
+
+    /**
      * Shortcode for displaying live results.
      *
      * @since    1.0.0
@@ -208,20 +231,7 @@ class School_Sports_API_Shortcodes {
             $html .= '<div class="school-sports-api-tabs">';
             foreach ($genders as $index => $gender) {
                 $active = $index === 0 ? ' active' : '';
-                $trimmed_lower_gender = strtolower(trim($gender));
-                $slug_part = '';
-                // Use strpos for more robust matching against variations like "Djevojke (SS)"
-                if (strpos($trimmed_lower_gender, 'djevojke') !== false) {
-                    $slug_part = 'djevojke';
-                } elseif (strpos($trimmed_lower_gender, 'mladići') !== false || strpos($trimmed_lower_gender, 'mladici') !== false) { // Check for 'mladići' or 'mladici'
-                    $slug_part = 'mladici';
-                } elseif (strpos($trimmed_lower_gender, 'dječaci') !== false || strpos($trimmed_lower_gender, 'djecaci') !== false) { // Check for 'dječaci' or 'djecaci'
-                    $slug_part = 'djecaci';
-                } elseif (strpos($trimmed_lower_gender, 'djevojčice') !== false || strpos($trimmed_lower_gender, 'djevojcice') !== false) { // Check for 'djevojčice' or 'djevojcice'
-                    $slug_part = 'djevojcice';
-                } else {
-                    $slug_part = sanitize_title($trimmed_lower_gender); // Fallback for other/new gender strings
-                }
+                $slug_part = $this->get_gender_slug($gender);
                 $tab_id = 'school-sports-api-tab-' . $slug_part;
                 $html .= '<div class="school-sports-api-tab' . $active . '" data-tab="' . esc_attr($tab_id) . '">' . esc_html($gender) . '</div>';
             }
@@ -230,20 +240,7 @@ class School_Sports_API_Shortcodes {
         
         // Process each gender
         foreach ($genders as $index => $gender) {
-            $trimmed_lower_gender = strtolower(trim($gender));
-            $slug_part = '';
-            // Use strpos for more robust matching against variations
-            if (strpos($trimmed_lower_gender, 'djevojke') !== false) {
-                $slug_part = 'djevojke';
-            } elseif (strpos($trimmed_lower_gender, 'mladići') !== false || strpos($trimmed_lower_gender, 'mladici') !== false) {
-                $slug_part = 'mladici';
-            } elseif (strpos($trimmed_lower_gender, 'dječaci') !== false || strpos($trimmed_lower_gender, 'djecaci') !== false) {
-                $slug_part = 'djecaci';
-            } elseif (strpos($trimmed_lower_gender, 'djevojčice') !== false || strpos($trimmed_lower_gender, 'djevojcice') !== false) {
-                $slug_part = 'djevojcice';
-            } else {
-                $slug_part = sanitize_title($trimmed_lower_gender); // Fallback
-            }
+            $slug_part = $this->get_gender_slug($gender);
             $tab_id = 'school-sports-api-tab-' . $slug_part;
             $display = $index === 0 || count($genders) === 1 ? '' : ' style="display:none;"';
             $html .= '<div id="' . esc_attr($tab_id) . '" class="school-sports-api-tab-content"' . $display . '>';
