@@ -65,12 +65,20 @@ class School_Sports_API_Public {
      */
     public function enqueue_styles() {
         // Enqueue the main plugin CSS
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/css/school-sports-api-public.css', array(), $this->version, 'all');
+        // CSS files live in the plugin root "assets" directory. Use dirname(__DIR__)
+        // to build the correct URL instead of resolving to "includes/assets".
+        wp_enqueue_style(
+            $this->plugin_name,
+            plugin_dir_url(dirname(__DIR__)) . 'assets/css/school-sports-api-public.css',
+            array(),
+            $this->version,
+            'all'
+        );
         
         // Enqueue custom live results CSS with high priority
         wp_enqueue_style(
             $this->plugin_name . '-custom-live-results', 
-            plugin_dir_url(dirname(__FILE__)) . 'assets/css/custom-live-results.css', 
+            plugin_dir_url(dirname(__DIR__)) . 'assets/css/custom-live-results.css',
             array(), 
             $this->version . '.' . time(), // Add timestamp to prevent caching
             'all'
@@ -79,7 +87,7 @@ class School_Sports_API_Public {
         // Enqueue button visibility CSS with very high priority
         wp_enqueue_style(
             $this->plugin_name . '-button-visibility', 
-            plugin_dir_url(dirname(__FILE__)) . 'assets/css/button-visibility.css', 
+            plugin_dir_url(dirname(__DIR__)) . 'assets/css/button-visibility.css',
             array(), 
             $this->version . '.' . time(), // Add timestamp to prevent caching
             'all'
@@ -102,7 +110,14 @@ class School_Sports_API_Public {
      * @since    1.0.0
      */
     public function enqueue_scripts() {
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-public.js', array('jquery'), $this->version . '.' . time(), true);
+        // JavaScript also lives in the root assets directory.
+        wp_enqueue_script(
+            $this->plugin_name,
+            plugin_dir_url(dirname(__DIR__)) . 'assets/js/school-sports-api-public.js',
+            array('jquery'),
+            $this->version . '.' . time(),
+            true
+        );
         
         // Get options
         $options = get_option('school_sports_api_options');

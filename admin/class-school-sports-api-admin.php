@@ -44,7 +44,17 @@ class School_Sports_API_Admin {
      * @since    1.0.0
      */
     public function enqueue_styles() {
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/css/school-sports-api-admin.css', array(), $this->version, 'all');
+        // Assets live in the plugin root "assets" directory. Using
+        // plugin_dir_url(dirname(__FILE__)) would resolve to
+        // ".../admin/assets" which does not exist. We need the plugin root URL
+        // instead, so move one directory up with dirname(__DIR__).
+        wp_enqueue_style(
+            $this->plugin_name,
+            plugin_dir_url(dirname(__DIR__)) . 'assets/css/school-sports-api-admin.css',
+            array(),
+            $this->version,
+            'all'
+        );
     }
 
     /**
@@ -53,7 +63,14 @@ class School_Sports_API_Admin {
      * @since    1.0.0
      */
     public function enqueue_scripts() {
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-admin.js', array('jquery'), $this->version, false);
+        // Use plugin root URL for the admin JavaScript file.
+        wp_enqueue_script(
+            $this->plugin_name,
+            plugin_dir_url(dirname(__DIR__)) . 'assets/js/school-sports-api-admin.js',
+            array('jquery'),
+            $this->version,
+            false
+        );
         // Localize script for AJAX
         wp_localize_script($this->plugin_name, 'school_sports_api_admin_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -465,7 +482,8 @@ class School_Sports_API_Admin {
      * @return   array                     The modified plugin array.
      */
     public function add_shortcode_button_script($plugin_array) {
-        $plugin_array['school_sports_api_shortcode'] = plugin_dir_url(dirname(__FILE__)) . 'assets/js/school-sports-api-admin.js';
+        // TinyMCE plugin script also resides under the plugin root assets.
+        $plugin_array['school_sports_api_shortcode'] = plugin_dir_url(dirname(__DIR__)) . 'assets/js/school-sports-api-admin.js';
         return $plugin_array;
     }
 }
