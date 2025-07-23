@@ -26,10 +26,10 @@ echo "Starting plugin debug...\n\n";
 function check_file_exists($file_path) {
     $full_path = PLUGIN_PATH . '/' . $file_path;
     if (file_exists($full_path)) {
-        echo esc_html("✓ File exists: {$file_path}\n");
+        echo htmlspecialchars("✓ File exists: {$file_path}\n", ENT_QUOTES, 'UTF-8');
         return true;
     } else {
-        echo esc_html("✗ File MISSING: {$file_path}\n");
+        echo htmlspecialchars("✗ File MISSING: {$file_path}\n", ENT_QUOTES, 'UTF-8');
         return false;
     }
 }
@@ -43,11 +43,11 @@ function check_syntax($file_path) {
     
     $output = shell_exec("php -l \"{$full_path}\" 2>&1");
     if (strpos($output, 'No syntax errors detected') !== false) {
-        echo esc_html("✓ Syntax OK: {$file_path}\n");
+        echo htmlspecialchars("✓ Syntax OK: {$file_path}\n", ENT_QUOTES, 'UTF-8');
         return true;
     } else {
-        echo esc_html("✗ Syntax ERROR in {$file_path}:\n");
-        echo esc_html($output . "\n");
+        echo htmlspecialchars("✗ Syntax ERROR in {$file_path}:\n", ENT_QUOTES, 'UTF-8');
+        echo htmlspecialchars($output . "\n", ENT_QUOTES, 'UTF-8');
         return false;
     }
 }
@@ -116,16 +116,16 @@ try {
     error_reporting($old_error_level);
     
     if (empty($output)) {
-        echo esc_html("✓ Main plugin file included successfully.\n");
+        echo htmlspecialchars("✓ Main plugin file included successfully.\n", ENT_QUOTES, 'UTF-8');
     } else {
-        echo esc_html("✗ Errors when including main plugin file:\n");
-        echo esc_html($output . "\n");
+        echo htmlspecialchars("✗ Errors when including main plugin file:\n", ENT_QUOTES, 'UTF-8');
+        echo htmlspecialchars($output . "\n", ENT_QUOTES, 'UTF-8');
     }
 } catch (Throwable $e) {
     // Catch any exceptions
     ob_end_clean();
-    echo esc_html("✗ Exception when including main plugin file:\n");
-    echo esc_html($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n");
+    echo htmlspecialchars("✗ Exception when including main plugin file:\n", ENT_QUOTES, 'UTF-8');
+    echo htmlspecialchars($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n", ENT_QUOTES, 'UTF-8');
 }
 
 echo "\nDebug complete.\n";
