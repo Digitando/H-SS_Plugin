@@ -25,7 +25,7 @@ foreach ($files as $file) {
     $fullPath = __DIR__ . '/' . $file;
     
     if (!file_exists($fullPath)) {
-        echo esc_html("ERROR: File not found: {$file}\n");
+        echo htmlspecialchars("ERROR: File not found: {$file}\n", ENT_QUOTES, 'UTF-8');
         continue;
     }
     
@@ -35,11 +35,11 @@ foreach ($files as $file) {
     exec("php -l {$fullPath}", $output, $return_var);
     
     if ($return_var !== 0) {
-        echo esc_html("ERROR in {$file}:\n");
-        echo esc_html(implode("\n", $output) . "\n");
+        echo htmlspecialchars("ERROR in {$file}:\n", ENT_QUOTES, 'UTF-8');
+        echo htmlspecialchars(implode("\n", $output) . "\n", ENT_QUOTES, 'UTF-8');
     } else {
-        echo esc_html("OK: {$file}\n");
+        echo htmlspecialchars("OK: {$file}\n", ENT_QUOTES, 'UTF-8');
     }
 }
 
-echo esc_html("Syntax check complete.\n");
+echo htmlspecialchars("Syntax check complete.\n", ENT_QUOTES, 'UTF-8');
